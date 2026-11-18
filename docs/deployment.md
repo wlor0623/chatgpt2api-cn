@@ -53,7 +53,7 @@ docker compose -f docker-compose.yml -f docker-compose.postgres.yml logs -f post
 也可以使用仓库安装脚本：
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/yukkcat/chatgpt2api/main/deploy/install.sh | sudo bash
+curl -fsSL https://gh-proxy.com/https://raw.githubusercontent.com/wlor0623/chatgpt2api-cn/main/deploy/install.sh | sudo bash
 ```
 
 安装脚本会明确询问 Application Database：

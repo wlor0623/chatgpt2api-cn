@@ -40,7 +40,7 @@
 ### One-click installer
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/yukkcat/chatgpt2api/main/deploy/install.sh | sudo bash
+curl -fsSL https://gh-proxy.com/https://raw.githubusercontent.com/wlor0623/chatgpt2api-cn/main/deploy/install.sh | sudo bash
 ```
 
 The installer lets you choose SQLite, a local PostgreSQL 18 container, or an existing PostgreSQL URL. SQLite requires no additional service. Local PostgreSQL is started and persisted automatically through Compose.
@@ -48,7 +48,7 @@ The installer lets you choose SQLite, a local PostgreSQL 18 container, or an exi
 To install the fixed `v3.2.3` release:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/yukkcat/chatgpt2api/v3.2.3/deploy/install.sh | sudo bash -s -- --branch v3.2.3
+curl -fsSL https://gh-proxy.com/https://raw.githubusercontent.com/yukkcat/chatgpt2api/v3.2.3/deploy/install.sh | sudo bash -s -- --branch v3.2.3
 ```
 
 ### Docker Compose
