@@ -18,6 +18,7 @@ POSTGRES_USER="${POSTGRES_USER_INPUT:-chatgpt2api}"
 POSTGRES_PASSWORD="${POSTGRES_PASSWORD:-}"
 INSTALL_LANG="${INSTALL_LANG:-}"
 CHATGPT2API_IMAGE="${CHATGPT2API_IMAGE:-}"
+GH_PROXY="${GH_PROXY:-https://gh-proxy.com}"
 
 UI_DEV="/dev/tty"
 if [[ ! -r "${UI_DEV}" ]]; then
@@ -45,6 +46,7 @@ EOF
   POSTGRES_PASSWORD=generated-automatically
   INSTALL_LANG=zh|en
   CHATGPT2API_IMAGE=ghcr.io/yukkcat/chatgpt2api:latest
+  GH_PROXY=https://gh-proxy.com  (default; set GH_PROXY=direct to disable)
 EOF
 
   printf '\n%s\n' "$(text usage_flags)"
@@ -60,6 +62,7 @@ EOF
   --postgres-password your-postgres-password
   --repo-owner yukkcat
   --repo-name chatgpt2api
+  --gh-proxy https://gh-proxy.com|direct
   -h, --help
 EOF
 }
@@ -471,6 +474,10 @@ parse_args() {
         REPO_NAME="${2:-}"
         shift 2
         ;;
+      --gh-proxy)
+        GH_PROXY="${2:-}"
+        shift 2
+        ;;
       *)
         echo "[$(text prefix_error)] $(text err_unknown_arg): $1" >&2
         usage >&2
@@ -505,7 +512,20 @@ validate_inputs() {
 }
 
 repo_url() {
-  printf 'https://github.com/%s/%s.git' "${REPO_OWNER}" "${REPO_NAME}"
+  printf '%s' "$(apply_gh_proxy "$(printf 'https://github.com/%s/%s.git' "${REPO_OWNER}" "${REPO_NAME}")")"
+}
+
+apply_gh_proxy() {
+  local url="$1"
+  if gh_proxy_active; then
+    printf '%s/%s' "${GH_PROXY%/}" "${url}"
+  else
+    printf '%s' "${url}"
+  fi
+}
+
+gh_proxy_active() {
+  [[ -n "${GH_PROXY}" && ! "${GH_PROXY,,}" =~ ^(direct|none)$ ]]
 }
 
 default_image() {
@@ -523,7 +543,7 @@ default_image() {
 }
 
 raw_url() {
-  printf 'https://raw.githubusercontent.com/%s/%s/%s/%s' "${REPO_OWNER}" "${REPO_NAME}" "${BRANCH}" "$1"
+  apply_gh_proxy "$(printf 'https://raw.githubusercontent.com/%s/%s/%s/%s' "${REPO_OWNER}" "${REPO_NAME}" "${BRANCH}" "$1")"
 }
 
 download_file() {
@@ -650,7 +670,13 @@ ensure_uv() {
   fi
   need_cmd curl
   ui_println "[$(text prefix_info)] $(text info_install_uv)"
-  curl -LsSf https://astral.sh/uv/install.sh | sh
+  if gh_proxy_active; then
+    UV_INSTALLER_GITHUB_BASE_URL="${GH_PROXY%/}"
+    export UV_INSTALLER_GITHUB_BASE_URL
+    curl -fsSL "$(apply_gh_proxy 'https://github.com/astral-sh/uv/releases/latest/download/uv-installer.sh')" | sh
+  else
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+  fi
   export PATH="${HOME}/.local/bin:${HOME}/.cargo/bin:${PATH}"
   need_cmd uv
 }
