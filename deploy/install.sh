@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-REPO_OWNER="${REPO_OWNER:-yukkcat}"
-REPO_NAME="${REPO_NAME:-chatgpt2api}"
+REPO_OWNER="${REPO_OWNER:-wlor0623}"
+REPO_NAME="${REPO_NAME:-chatgpt2api-cn}"
+IMAGE_REPO="${IMAGE_REPO:-wlor0623/chatgpt2api}"
 BRANCH="${BRANCH:-main}"
 INSTALL_DIR="${INSTALL_DIR:-/opt/chatgpt2api}"
 PORT="${CHATGPT2API_PORT:-${PORT:-3000}}"
@@ -30,7 +31,8 @@ usage() {
   printf '%s\n' "$(text usage_usage)"
   cat <<'EOF'
   bash deploy/install.sh
-  curl -fsSL https://raw.githubusercontent.com/yukkcat/chatgpt2api/main/deploy/install.sh | sudo bash
+  curl -fsSL https://raw.githubusercontent.com/wlor0623/chatgpt2api-cn/main/deploy/install.sh | sudo bash
+  curl -fsSL https://gh-proxy.com/https://raw.githubusercontent.com/wlor0623/chatgpt2api-cn/main/deploy/install.sh | sudo bash
 EOF
 
   printf '\n%s\n' "$(text usage_env)"
@@ -45,7 +47,8 @@ EOF
   DATABASE_URL=postgresql://...
   POSTGRES_PASSWORD=generated-automatically
   INSTALL_LANG=zh|en
-  CHATGPT2API_IMAGE=ghcr.io/yukkcat/chatgpt2api:latest
+  CHATGPT2API_IMAGE=ghcr.io/wlor0623/chatgpt2api:latest
+  IMAGE_REPO=wlor0623/chatgpt2api
   GH_PROXY=https://gh-proxy.com  (default; set GH_PROXY=direct to disable)
 EOF
 
@@ -60,8 +63,8 @@ EOF
   --database sqlite|postgres-local|postgres-url
   --database-url postgresql://...
   --postgres-password your-postgres-password
-  --repo-owner yukkcat
-  --repo-name chatgpt2api
+  --repo-owner wlor0623
+  --repo-name chatgpt2api-cn
   --gh-proxy https://gh-proxy.com|direct
   -h, --help
 EOF
@@ -535,11 +538,11 @@ default_image() {
   fi
 
   if [[ "${BRANCH}" =~ ^v?[0-9] ]]; then
-    printf 'ghcr.io/%s/%s:%s' "${REPO_OWNER}" "${REPO_NAME}" "${BRANCH}"
+    printf 'ghcr.io/%s:%s' "${IMAGE_REPO}" "${BRANCH}"
     return
   fi
 
-  printf 'ghcr.io/%s/%s:latest' "${REPO_OWNER}" "${REPO_NAME}"
+  printf 'ghcr.io/%s:latest' "${IMAGE_REPO}"
 }
 
 raw_url() {
